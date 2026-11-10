@@ -24,7 +24,7 @@ Dann `http://localhost:8000` öffnen. Mit `?hinweise` startet die Seite im Präs
 |---|---|---|---|
 | 1 | Hero mit Suche | H1 „Eine globale Marke. Eine neue Perspektive für Deutschland.“ | Startseite |
 | 2 | Aktuelle Immobilienangebote | Ausgewählte Immobilien in besonderen Lagen. | Startseite, Standortseite Hamburg |
-| 3 | Länder-Teaser | Das weltweite Zuhause exklusiver Immobilien. | Startseite |
+| 3 | Länder-Teaser | Das weltweite Zuhause exklusiver Immobilien. | Startseite; Weltkarte als Vektorgrafik nachgebaut |
 | 4 | Unsere Stärken | Eine der renommiertesten Marken der internationalen Immobilienbranche | Startseite |
 | 5 | Premiumleistungen | Persönlich. International. Exklusiv. | Standortseiten |
 | 6 | Magazin-Teaser | Live Well with Coldwell | Startseite (Video per Zwei-Klick) |
@@ -54,4 +54,7 @@ assets/js/main.js        Suche, Slider, Kontakt-Reiter, Video, Formulare, Präse
 assets/fonts/            Webfonts (SIL Open Font License)
 assets/img/              Bilder und Logos von coldwellbanker.de, Blog-Platzhalter (Unsplash)
 tools/build-map.mjs      Erzeugt den SVG-Pfad der Deutschlandkarte (Natural Earth, gemeinfrei)
+tools/build-world-map.mjs  Erzeugt die Netzwerk-Weltkarte samt Karibik-Lupe und schreibt sie
+                         zwischen <!-- WELTKARTE:START/END --> in index.html
+                         (npm i world-atlas topojson-client d3-geo && node tools/build-world-map.mjs)
 ```

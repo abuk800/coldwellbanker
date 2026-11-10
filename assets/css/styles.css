@@ -264,8 +264,54 @@ h1 em, h2 em { font-style: italic; font-weight: 400; }
 .luxury-note strong { display: block; color: var(--ink); font-weight: 600; letter-spacing: .02em; }
 
 /* ---------- Netzwerk / Regionen ---------- */
-.network-map { margin: 0 0 40px; padding: clamp(16px, 3vw, 40px); background: #fff; border: 1px solid var(--line); }
-.network-map img { width: 100%; }
+/* Netzwerk-Weltkarte (inline SVG, erzeugt mit tools/build-world-map.mjs) */
+.wm {
+  --map-land: #d9d5ce; --map-a: #5f7fcb; --map-b: #1d3f94;
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: clamp(24px, 3vw, 48px); align-items: center;
+  margin: 0 0 40px; padding: clamp(20px, 3vw, 44px); background: #fff; border: 1px solid var(--line);
+}
+.wm__map { position: relative; order: 1; }
+.wm__stats { order: 2; display: grid; gap: 28px; justify-items: center; text-align: center; }
+.wm__stat { display: grid; gap: 6px; justify-items: center; }
+.wm__stat + .wm__stat { padding-top: 28px; border-top: 1px solid var(--line-strong); width: 100%; }
+.wm__value { font-variant-numeric: lining-nums; font-family: var(--font-display); font-size: clamp(48px, 4.6vw, 68px); line-height: 1; font-weight: 500; color: var(--brand); letter-spacing: -.02em; }
+.wm__label { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.wm__world { display: block; width: 100%; height: auto; overflow: visible; }
+.wm-land { fill: var(--map-land); stroke: #fff; stroke-width: .5; }
+.wm-cb { fill: url(#wmGrad); stroke: #fff; stroke-width: .5; cursor: pointer; transition: fill .2s, opacity .3s; }
+.wm-stop-a { stop-color: var(--map-a); }
+.wm-stop-b { stop-color: var(--map-b); }
+.wm-dot { fill: var(--map-b); stroke: #fff; stroke-width: 1.2; cursor: pointer; transition: fill .2s, opacity .3s; }
+.wm-cb:hover, .wm-cb.is-hover, .wm-dot:hover, .wm-dot.is-hover { fill: var(--accent); }
+.wm-frame { fill: none; stroke: var(--ink); stroke-width: .8; opacity: .5; }
+.wm.is-filtered .wm-cb:not(.is-on), .wm.is-filtered .wm-dot:not(.is-on) { opacity: .18; }
+.wm__scroll { padding-left: 19%; }
+.wm__inset { position: absolute; left: 0; bottom: 0; width: 33%; margin: 0; background: #fff; border: 1px solid var(--line-strong); box-shadow: 0 10px 30px -18px rgba(7,16,41,.35); }
+.wm__inset svg { display: block; width: 100%; height: auto; }
+.wm__inset .wm-land { stroke-width: .6; }
+.wm-labels text { font-family: var(--font-sans); font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; fill: var(--ink); pointer-events: none; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+.wm-labels line { stroke: var(--ink); stroke-width: .6; opacity: .55; }
+.wm__inset figcaption { position: absolute; right: 10px; top: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.wm__hint { display: none; }
+.wm-tip { position: absolute; z-index: 5; pointer-events: none; padding: 7px 12px; background: var(--brand-ink); color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; transform: translate(-50%, calc(-100% - 12px)); box-shadow: 0 8px 20px -8px rgba(0,0,0,.4); }
+.wm-tip[hidden] { display: none; }
+@media (max-width: 1024px) {
+  .wm { grid-template-columns: minmax(0, 1fr); }
+  .wm__stats { order: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wm__stat + .wm__stat { padding-top: 0; border-top: 0; border-left: 1px solid var(--line-strong); }
+  .wm__scroll { padding-left: 0; }
+  .wm__inset { position: relative; left: auto; bottom: auto; width: min(100%, 560px); margin: 20px auto 0; box-shadow: none; }
+}
+@media (max-width: 700px) {
+  .wm { padding: 20px 0 0; }
+  .wm__stats { padding-inline: 20px; }
+  .wm__scroll { overflow-x: auto; scrollbar-width: none; padding-inline: 12px; }
+  .wm__scroll::-webkit-scrollbar { display: none; }
+  .wm__world { width: 660px; max-width: none; }
+  .wm__inset { width: auto; margin: 12px; }
+  .wm__hint { display: block; margin: 6px 0 0; text-align: center; font-size: 12px; color: var(--muted); }
+  .wm-labels text { font-size: 10px; }
+}
 .regions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; align-items: start; }
 @media (max-width: 1024px) { .regions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .regions { grid-template-columns: 1fr; } }

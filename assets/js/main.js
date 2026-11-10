@@ -177,6 +177,52 @@
     card.addEventListener('mouseleave', () => on(false));
   });
 
+  /* ---------- Netzwerk-Weltkarte ---------- */
+  const wm = $('#weltkarte');
+  if (wm) {
+    const tip = $('#wmTip');
+    const shapes = $$('.wm-cb, .wm-dot', wm);
+    let tipFor = null;
+    const showTip = (el, x, y) => {
+      const r = wm.getBoundingClientRect();
+      tip.textContent = el.dataset.name;
+      tip.hidden = false;
+      tip.style.left = `${x - r.left}px`;
+      tip.style.top = `${y - r.top}px`;
+      shapes.forEach(s => s.classList.toggle('is-hover', s.dataset.name === el.dataset.name));
+      tipFor = el;
+    };
+    const hideTip = () => { tip.hidden = true; tipFor = null; shapes.forEach(s => s.classList.remove('is-hover')); };
+    shapes.forEach(el => {
+      el.addEventListener('mousemove', e => showTip(el, e.clientX, e.clientY));
+      el.addEventListener('mouseleave', hideTip);
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        if (tipFor === el) { hideTip(); return; }
+        const b = el.getBoundingClientRect();
+        showTip(el, b.left + b.width / 2, b.top);
+      });
+    });
+    document.addEventListener('click', hideTip);
+
+    // Regionskacheln heben ihre Länder auf der Karte hervor
+    const setRegion = key => {
+      wm.classList.toggle('is-filtered', !!key);
+      shapes.forEach(s => s.classList.toggle('is-on', s.dataset.region === key));
+    };
+    const regions = $$('.region[data-region]');
+    const openRegion = () => (regions.find(r => r.open) || {}).dataset;
+    regions.forEach(r => {
+      r.addEventListener('mouseenter', () => setRegion(r.dataset.region));
+      r.addEventListener('mouseleave', () => setRegion(openRegion()?.region));
+      r.addEventListener('toggle', () => setRegion(r.open ? r.dataset.region : openRegion()?.region));
+    });
+
+    // Auf schmalen Bildschirmen ist die Karte wischbar: Start mittig auf dem Atlantik
+    const sc = $('.wm__scroll', wm);
+    if (sc && sc.scrollWidth > sc.clientWidth) sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) * 0.42;
+  }
+
   /* ---------- Kennzahlen hochzählen ---------- */
   const countUp = el => {
     if (reduceMotion) return;
