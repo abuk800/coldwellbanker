@@ -474,6 +474,49 @@ h1 em, h2 em { font-style: italic; font-weight: 400; }
 .area b { display: block; font-family: var(--font-display); font-size: clamp(22px, 2.1vw, 28px); line-height: 1.15; font-weight: 500; color: #fff; margin-bottom: 6px; }
 .area:hover img { transform: scale(1.05); }
 
+/* ---------- Rezensionen ---------- */
+.stars { display: inline-flex; gap: 3px; color: #c9a227; }
+.stars svg { width: 16px; height: 16px; }
+.rating-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; margin-bottom: 32px; padding: 20px 28px; background: var(--stone); border: 1px solid var(--line); }
+.rating-bar__score { display: flex; align-items: center; gap: 14px; }
+.rating-bar__value { font-family: var(--font-display); font-size: 48px; line-height: 1; color: var(--ink); font-variant-numeric: lining-nums; }
+.rating-bar p { flex: 1; min-width: 240px; margin: 0; font-size: 14.5px; color: var(--muted); }
+.rating-bar p strong { display: block; color: var(--ink); font-weight: 600; }
+.rating-bar__src { display: flex; gap: 8px; }
+.rating-bar__src span { padding: 8px 14px; border: 1px solid var(--line-strong); background: #fff; font-size: 12.5px; font-weight: 600; color: var(--text); }
+.carousel--reviews > * { min-width: 0; }
+.review { position: relative; display: flex; flex-direction: column; padding: 32px 30px 28px; background: #fff; border: 1px solid var(--line); }
+.review__placeholder { position: absolute; top: 14px; right: 14px; padding: 3px 8px; border: 1px dashed var(--line-strong); font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.review h3 { margin: 18px 0 12px; font-size: 24px; }
+.review blockquote { margin: 0 0 24px; font-size: 15.5px; line-height: 1.65; color: var(--text); }
+.review footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 14px; }
+.review footer strong { display: block; color: var(--ink); font-weight: 600; }
+.review footer span { color: var(--muted); font-size: 13px; }
+.review .review__src { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+
+/* ---------- FAQ ---------- */
+.faq { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(32px, 5vw, 88px); align-items: start; }
+@media (min-width: 960px) { .faq { grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); } .faq__intro { position: sticky; top: calc(var(--header-h) + 32px); } }
+.faq__intro h2 { margin-bottom: 20px; }
+.faq__intro .btn { margin-top: 24px; }
+.faq__nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.faq__nav a { padding: 9px 16px; border: 1px solid var(--line-strong); border-radius: 999px; font-size: 14px; font-weight: 500; color: var(--text); background: var(--paper); transition: border-color .25s, color .25s; }
+.faq__nav a:hover { border-color: var(--brand); color: var(--brand); }
+.faq__group { scroll-margin-top: calc(var(--header-h) + 24px); }
+.faq__group + .faq__group { margin-top: 48px; }
+.faq__group h3 { margin-bottom: 12px; font-size: clamp(26px, 2.4vw, 32px); }
+.faq__item { border-bottom: 1px solid var(--line-strong); }
+.faq__item:first-of-type { border-top: 1px solid var(--line-strong); }
+.faq__item summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; cursor: pointer; list-style: none; font-size: 17px; font-weight: 600; line-height: 1.45; color: var(--ink); }
+.faq__item summary::-webkit-details-marker { display: none; }
+.faq__item summary:hover { color: var(--brand); }
+.faq__icon { width: 22px; height: 22px; color: var(--brand); transition: transform .3s var(--ease); }
+.faq__item[open] .faq__icon { transform: rotate(45deg); }
+.faq__answer { padding: 0 40px 24px 0; }
+.faq__answer p { margin: 0; font-size: 16px; line-height: 1.75; color: var(--text); }
+.faq__answer .link-arrow { margin-top: 16px; }
+@media (max-width: 600px) { .faq__answer { padding-right: 0; } .faq__item summary { font-size: 16px; } }
+
 /* ---------- Kontakt ---------- */
 .contact { background: #fff; border: 1px solid var(--line); }
 .contact__tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }

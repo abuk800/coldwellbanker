@@ -97,7 +97,7 @@
       next.disabled = track.scrollLeft >= max - 2;
     };
     $$('.carousel-btn', nav).forEach(btn => btn.addEventListener('click', () => {
-      const item = track.querySelector('.listing:not([hidden])');
+      const item = track.querySelector(':scope > article:not([hidden])');
       const step = item ? item.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth;
       track.scrollBy({ left: step * Number(btn.dataset.dir), behavior: scrollBehavior });
     }));
