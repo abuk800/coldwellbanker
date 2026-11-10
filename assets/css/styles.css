@@ -171,8 +171,18 @@ h1 em, h2 em { font-style: italic; font-weight: 400; }
 /* ---------- Hero ---------- */
 .hero { position: relative; min-height: min(90vh, 940px); display: flex; align-items: flex-end; color: #fff; isolation: isolate; }
 .hero__media { position: absolute; inset: 0; z-index: -2; overflow: hidden; background: var(--brand-ink); }
-.hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%; transform: scale(1.04); animation: heroZoom 18s var(--ease) forwards; }
-@keyframes heroZoom { to { transform: scale(1); } }
+.hero__video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.hero__toggle {
+  position: absolute; z-index: 2; right: max(var(--gutter), calc((100vw - var(--container)) / 2 + var(--gutter))); top: 24px;
+  width: 46px; height: 46px; display: grid; place-items: center; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.45); background: rgba(7,16,41,.35); color: #fff; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: background .25s, border-color .25s;
+}
+.hero__toggle:hover { background: rgba(7,16,41,.6); border-color: #fff; }
+.hero__toggle[hidden] { display: none; }
+.hero__toggle svg { width: 18px; height: 18px; }
+.hero__toggle .i-play, .hero__toggle[aria-pressed="true"] .i-pause { display: none; }
+.hero__toggle[aria-pressed="true"] .i-play { display: block; margin-left: 2px; }
 .hero::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
   background:

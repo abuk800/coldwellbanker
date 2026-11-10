@@ -17,6 +17,32 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
+  /* ---------- Hero-Video ---------- */
+  // Läuft stumm in Schleife. Bei „Bewegung reduzieren“ oder Datensparmodus bleibt das Standbild (Poster) stehen.
+  const heroVideo = $('#heroVideo');
+  const heroToggle = $('#heroToggle');
+  const saveData = navigator.connection && navigator.connection.saveData;
+  if (heroVideo && !reduceMotion && !saveData) {
+    heroVideo.muted = true;
+    heroVideo.setAttribute('preload', 'auto');
+    const setPaused = paused => {
+      heroToggle.setAttribute('aria-pressed', String(paused));
+      heroToggle.setAttribute('aria-label', paused ? 'Hintergrundvideo abspielen' : 'Hintergrundvideo pausieren');
+    };
+    const start = () => heroVideo.play().then(() => { heroToggle.hidden = false; setPaused(false); }).catch(() => {});
+    start();
+    heroToggle.addEventListener('click', () => {
+      if (heroVideo.paused) { heroVideo.play(); setPaused(false); } else { heroVideo.pause(); setPaused(true); }
+    });
+    // Außerhalb des sichtbaren Bereichs anhalten (spart Akku), danach weiterlaufen – außer es wurde bewusst pausiert
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([en]) => {
+        if (heroToggle.getAttribute('aria-pressed') === 'true') return;
+        if (en.isIntersecting) heroVideo.play().catch(() => {}); else heroVideo.pause();
+      }).observe(heroVideo);
+    }
+  }
+
   const toggle = $('#menuToggle');
   const setMenu = (open) => {
     if (open) document.documentElement.style.setProperty('--nav-top', `${Math.max(0, header.getBoundingClientRect().bottom)}px`);

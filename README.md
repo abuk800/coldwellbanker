@@ -22,7 +22,7 @@ Dann `http://localhost:8000` öffnen. Mit `?hinweise` startet die Seite im Präs
 
 | # | von-Poll-Slot | H2 | Quelle |
 |---|---|---|---|
-| 1 | Hero mit Suche | H1 „Eine globale Marke. Eine neue Perspektive für Deutschland.“ | Startseite |
+| 1 | Hero mit Suche | H1 „Eine globale Marke. Eine neue Perspektive für Deutschland.“ | Startseite; Hintergrundvideo = bestehender Imagefilm |
 | 2 | Aktuelle Immobilienangebote | Ausgewählte Immobilien in besonderen Lagen. | Startseite, Standortseite Hamburg |
 | 3 | Länder-Teaser | Das weltweite Zuhause exklusiver Immobilien. | Startseite; Weltkarte als Vektorgrafik nachgebaut |
 | 4 | Unsere Stärken | Eine der renommiertesten Marken der internationalen Immobilienbranche | Startseite |
@@ -41,6 +41,7 @@ Dann `http://localhost:8000` öffnen. Mit `?hinweise` startet die Seite im Präs
 
 - [ ] Kennzahlen prüfen: Die Seite nennt „3.000+ Immobilien“, an anderer Stelle „3.000 Büros/Standorte“. „98 % Zufriedenheit“ sollte belegbar sein.
 - [ ] Vorschaubild des Kampagnenvideos ist sehr amerikanisch geprägt; ggf. eigenes Motiv.
+- [ ] Lagenbilder Münchner Süden wirken KI-generiert; vor dem Relaunch durch echte Fotos ersetzen.
 - [ ] Blog-Bilder sind Platzhalter (auch auf der bestehenden Seite).
 - [ ] CI-Brandbook: Farben und Schriften final abstimmen; das Logo ist das Original von coldwellbanker.de (für den hellen Header blau eingefärbt).
 - [ ] Objekte im Relaunch an Propstack anbinden.
@@ -53,6 +54,7 @@ assets/css/styles.css    Design-Tokens und Layout
 assets/js/main.js        Suche, Slider, Kontakt-Reiter, Video, Formulare, Präsentationsmodus
 assets/fonts/            Webfonts (SIL Open Font License)
 assets/img/              Bilder und Logos von coldwellbanker.de, Blog-Platzhalter (Unsplash)
+assets/video/hero.mp4    Imagefilm von coldwellbanker.de für den Hero (stumm, 30 fps, 3,3 MB)
 tools/build-map.mjs      Erzeugt den SVG-Pfad der Deutschlandkarte (Natural Earth, gemeinfrei)
 tools/build-world-map.mjs  Erzeugt die Netzwerk-Weltkarte samt Karibik-Lupe und schreibt sie
                          zwischen <!-- WELTKARTE:START/END --> in index.html
