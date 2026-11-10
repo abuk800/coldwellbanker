@@ -3,6 +3,7 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const scrollBehavior = reduceMotion ? 'auto' : 'smooth';
   const fmt = new Intl.NumberFormat('de-DE');
 
   /* ---------- Header & mobiles Menü ---------- */
@@ -25,72 +26,100 @@
   };
   toggle.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
   $$('#nav a').forEach(a => a.addEventListener('click', () => setMenu(false)));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
 
-  /* ---------- Such-Reiter (Kaufen / Mieten / Verkaufen) ---------- */
-  const tabs = $$('.search__tab');
-  const selectTab = (tab, focus) => {
-    tabs.forEach(t => {
-      const on = t === tab;
-      t.setAttribute('aria-selected', String(on));
-      t.tabIndex = on ? 0 : -1;
-      $('#' + t.getAttribute('aria-controls')).hidden = !on;
+  // Standorte-Untermenü (Klick/Tastatur; auf dem Desktop zusätzlich per Hover)
+  const subToggle = $('.nav__toggle');
+  const setSub = open => subToggle.setAttribute('aria-expanded', String(open));
+  subToggle.addEventListener('click', e => { e.stopPropagation(); setSub(subToggle.getAttribute('aria-expanded') !== 'true'); });
+  document.addEventListener('click', e => { if (!e.target.closest('.nav__item--sub')) setSub(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { setMenu(false); setSub(false); } });
+
+  /* ---------- Reiter (Suche & Kontakt) ---------- */
+  const initTabs = (tabs, onSelect) => {
+    const select = (tab, focus) => {
+      tabs.forEach(t => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        $('#' + t.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) tab.focus();
+      if (onSelect) onSelect(tab);
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', e => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+      });
     });
-    if (focus) tab.focus();
+    return select;
   };
-  tabs.forEach((tab, i) => {
-    tab.addEventListener('click', () => selectTab(tab));
-    tab.addEventListener('keydown', e => {
-      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
-      if (d) { e.preventDefault(); selectTab(tabs[(i + d + tabs.length) % tabs.length], true); }
-    });
+  initTabs($$('.search__tab'));
+  const contactTabs = $$('.contact__tab');
+  const selectContact = initTabs(contactTabs);
+
+  /* ---------- Slider ---------- */
+  $$('[data-carousel]').forEach(track => {
+    const nav = $(`[data-carousel-nav="${track.dataset.carousel}"]`);
+    if (!nav) return;
+    const [prev, next] = $$('.carousel-btn', nav);
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      nav.classList.toggle('is-static', max < 4);
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max - 2;
+    };
+    $$('.carousel-btn', nav).forEach(btn => btn.addEventListener('click', () => {
+      const item = track.querySelector('.listing:not([hidden])');
+      const step = item ? item.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth;
+      track.scrollBy({ left: step * Number(btn.dataset.dir), behavior: scrollBehavior });
+    }));
+    track.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    track.updateCarousel = update;
+    update();
   });
 
-  /* ---------- Objektfilter ---------- */
-  const state = { type: 'alle', region: 'alle', kind: 'alle', maxPrice: 0, minRooms: 0 };
-  const listings = $$('.listing');
-  const chips = $$('.chip');
-  const applyFilter = () => {
+  /* ---------- Objektfilter (über die Hero-Suche) ---------- */
+  const listingsTrack = $('#listings');
+  const listings = $$('.listing', listingsTrack);
+  const filterStatus = $('#filterStatus');
+  const regionNames = { hamburg: 'Hamburg', muenchen: 'Münchner Süden', international: 'International' };
+  const kindNames = { wohnung: 'Wohnung', haus: 'Haus & Villa' };
+  const applyFilter = (f) => {
     let n = 0;
     listings.forEach(el => {
       const d = el.dataset;
-      const price = Number(d.price);
-      const ok = (state.type === 'alle' || d.type === state.type)
-        && (state.region === 'alle' || d.region === state.region)
-        && (state.kind === 'alle' || d.kind === state.kind)
-        && (!state.maxPrice || (price > 0 && price <= state.maxPrice))
-        && (!state.minRooms || Number(d.rooms) >= state.minRooms);
+      const ok = !f || ((d.type === f.type)
+        && (f.region === 'alle' || d.region === f.region)
+        && (f.kind === 'alle' || d.kind === f.kind)
+        && (!f.rooms || Number(d.rooms) >= f.rooms));
       el.hidden = !ok;
       if (ok) { n++; el.classList.add('is-in'); }
     });
     $('#listingsEmpty').hidden = n > 0;
-    $('#listingCount').textContent = n === 1 ? '1 Objekt' : `${n} Objekte`;
-    chips.forEach(c => {
-      const f = c.dataset.filter, v = c.dataset.value;
-      const pressed = f === 'type' ? state[f] === v : state.region === v;
-      c.setAttribute('aria-pressed', String(pressed));
-    });
+    listingsTrack.classList.toggle('is-empty', n === 0);
+    filterStatus.hidden = !f;
+    if (f) {
+      const parts = [f.type === 'mieten' ? 'Mieten' : 'Kaufen'];
+      if (f.region !== 'alle') parts.push(regionNames[f.region]);
+      if (f.kind !== 'alle') parts.push(kindNames[f.kind]);
+      if (f.rooms) parts.push(`ab ${f.rooms} Zimmer`);
+      $('#filterText').textContent = `${parts.join(' · ')}: ${n === 1 ? '1 Immobilie' : `${n} Immobilien`}.`;
+    }
+    listingsTrack.scrollLeft = 0;
+    if (listingsTrack.updateCarousel) listingsTrack.updateCarousel();
   };
-  chips.forEach(c => c.addEventListener('click', () => {
-    const f = c.dataset.filter, v = c.dataset.value;
-    if (f === 'region') state.region = state.region === v ? 'alle' : v;
-    else state.type = v;
-    state.kind = 'alle'; state.maxPrice = 0; state.minRooms = 0;
-    applyFilter();
-  }));
+  $('#filterReset').addEventListener('click', () => applyFilter(null));
   $$('.listing__fav').forEach(b => b.addEventListener('click', () => {
-    const on = b.getAttribute('aria-pressed') !== 'true';
-    b.setAttribute('aria-pressed', String(on));
-    b.setAttribute('aria-label', on ? 'Gemerkt' : 'Merken');
+    b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
   }));
 
-  /* ---------- Terminformular ---------- */
-  const appointment = $('#appointment');
-  const openBtn = $('#openAppointment');
+  /* ---------- Kontakt: E-Mail-Formular mit Anliegen öffnen ---------- */
   const topic = $('#f-topic');
-  const openAppointment = (topicText, message) => {
-    appointment.hidden = false;
-    openBtn.setAttribute('aria-expanded', 'true');
+  const openMailForm = (topicText, message) => {
+    selectContact($('#ct-mail'));
     if (topicText) {
       let opt = [...topic.options].find(o => o.text === topicText);
       if (!opt) { opt = new Option(topicText, topicText); topic.add(opt, 0); }
@@ -98,24 +127,18 @@
     }
     if (message) $('#f-msg').value = message;
   };
-  openBtn.addEventListener('click', () => {
-    const open = appointment.hidden;
-    appointment.hidden = !open;
-    openBtn.setAttribute('aria-expanded', String(open));
-    if (open) appointment.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
-  });
-  $$('[data-open-appointment]').forEach(a => a.addEventListener('click', () => {
-    openAppointment(a.dataset.openAppointment);
-    setMenu(false);
-  }));
+  $$('[data-contact-topic]').forEach(a => a.addEventListener('click', () => openMailForm(a.dataset.contactTopic)));
 
-  $('#appointmentForm').addEventListener('submit', e => {
+  $$('.contact form').forEach(form => form.addEventListener('submit', e => {
     e.preventDefault();
-    const form = e.currentTarget;
     if (!form.checkValidity()) { form.reportValidity(); return; }
-    const name = $('#f-name').value.trim();
-    form.innerHTML = `<div class="form__success" role="status"><h3>Vielen Dank${name ? ', ' + name.replace(/[<>&]/g, '') : ''}.</h3><p>Ihre Anfrage ist eingegangen. Wir melden uns innerhalb von 24 Stunden persönlich bei Ihnen, um den Termin zu bestätigen.</p></div>`;
-  });
+    const box = document.createElement('div');
+    box.className = 'form__success';
+    box.setAttribute('role', 'status');
+    box.innerHTML = '<p></p>';
+    box.querySelector('p').textContent = form.dataset.success;
+    form.replaceChildren(box);
+  }));
 
   /* ---------- Hero-Suche ---------- */
   $$('[data-search]').forEach(form => form.addEventListener('submit', e => {
@@ -123,82 +146,42 @@
     const mode = form.dataset.search;
     const data = new FormData(form);
     if (mode === 'verkaufen') {
-      const msg = `Objekt: ${data.get('kind')}, ${data.get('size')}${data.get('ort') ? ', ' + data.get('ort') : ''}. Verkauf geplant: ${data.get('when')}.`;
-      openAppointment('Kostenlose Wertermittlung', msg);
-      $('#kontakt').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      const ort = (data.get('ort') || '').trim();
+      openMailForm('Immobilienbewertung', `Objekt: ${data.get('kind')}, Wohnfläche ${data.get('size')}${ort ? ', ' + ort : ''}.`);
+      $('#kontakt').scrollIntoView({ behavior: scrollBehavior });
       return;
     }
-    Object.assign(state, {
-      type: mode,
-      region: data.get('region'),
-      kind: data.get('kind'),
-      maxPrice: Number(data.get('price')) || 0,
-      minRooms: Number(data.get('rooms')) || 0,
-    });
-    applyFilter();
-    $('#objekte').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+    applyFilter({ type: mode, region: data.get('region'), kind: data.get('kind'), rooms: Number(data.get('rooms')) || 0 });
+    $('#immobilien').scrollIntoView({ behavior: scrollBehavior });
   }));
 
-  /* ---------- Standorte: Liste ↔ Karte ---------- */
-  $$('.loc[data-loc]').forEach(li => {
-    const pin = $(`.map__pin[data-pin="${li.dataset.loc}"]`);
-    const on = v => { pin && pin.classList.toggle('is-active', v); li.classList.toggle('is-active', v); };
-    li.addEventListener('mouseenter', () => on(true));
-    li.addEventListener('mouseleave', () => on(false));
+  /* ---------- Kampagnenvideo (Zwei-Klick-Lösung) ---------- */
+  const videoBox = $('#videoBox');
+  $$('[data-play-video]').forEach(btn => btn.addEventListener('click', () => {
+    if (videoBox.classList.contains('is-playing')) return;
+    const iframe = document.createElement('iframe');
+    iframe.src = 'https://www.youtube-nocookie.com/embed/JT-ZOpg4K5w?autoplay=1&rel=0';
+    iframe.title = 'Live Well with Coldwell';
+    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    iframe.allowFullscreen = true;
+    videoBox.replaceChildren(iframe);
+    videoBox.classList.add('is-playing');
+    if (btn.closest('.campaign__text')) videoBox.scrollIntoView({ behavior: scrollBehavior, block: 'center' });
+  }));
+
+  /* ---------- Standorte: Karte ↔ Karten ---------- */
+  $$('.loc-card[data-loc]').forEach(card => {
+    const pin = $(`.map__pin[data-pin="${card.dataset.loc}"]`);
+    const on = v => { if (pin) pin.classList.toggle('is-active', v); card.classList.toggle('is-active', v); };
+    card.addEventListener('mouseenter', () => on(true));
+    card.addEventListener('mouseleave', () => on(false));
   });
-
-  /* ---------- Bewertungen: mitwachsendes Modul ---------- */
-  // Beispielbewertungen – AUSSCHLIESSLICH zur Demonstration im Entwurf.
-  // Im Relaunch werden hier verifizierte Bewertungen per Schnittstelle (Google / ProvenExpert) geladen.
-  const demoReviews = [
-    { text: 'Vom ersten Gespräch bis zum Notartermin hatten wir das Gefühl, in sehr guten Händen zu sein. Ruhig, präzise und immer erreichbar.', name: 'Familie K.', place: 'Hamburg-Blankenese', src: 'Google' },
-    { text: 'Die Bewertung war realistisch und gut begründet – verkauft haben wir am Ende genau in diesem Rahmen. So stellt man sich das vor.', name: 'Dr. S. M.', place: 'Grünwald', src: 'ProvenExpert' },
-    { text: 'Wir wollten diskret verkaufen. Das hat hervorragend funktioniert, ohne dass unser Haus je öffentlich inseriert wurde.', name: 'H. und C. B.', place: 'Hamburg-Othmarschen', src: 'Google' },
-  ];
-  const promises = [
-    { icon: 'i-user', title: 'Ein Ansprechpartner', text: 'Sie haben vom ersten Gespräch bis zur Schlüsselübergabe eine feste Person an Ihrer Seite – mit Durchwahl.' },
-    { icon: 'i-doc', title: 'Transparente Konditionen', text: 'Provision, Leistungen und Ablauf erhalten Sie vorab schriftlich. Ohne Kleingedrucktes.' },
-  ];
-  const star = '<svg><use href="#i-star"/></svg>';
-  const stars = n => `<span class="stars" aria-label="${n} von 5 Sternen">${star.repeat(n)}</span>`;
-
-  const renderReviews = (count) => {
-    const wrap = $('#reviews');
-    const summary = $('#ratingSummary');
-    const note = $('#reviewsNote');
-    if (count === 0) {
-      summary.className = 'rating-summary rating-summary--empty';
-      summary.innerHTML = `<div class="rating-summary__score">Neu in<br>Deutschland</div><div class="rating-summary__meta">Unsere ersten Kundinnen und Kunden<br>bewerten uns gerade. <b>Ihre Meinung zählt.</b></div>`;
-      wrap.innerHTML = promises.map(p => `
-        <article class="promise"><svg class="promise__icon"><use href="#${p.icon}"/></svg><h3>${p.title}</h3><p>${p.text}</p><span class="promise__label">Unser Versprechen</span></article>`).join('') + `
-        <article class="review-invite"><h3>Sie haben mit uns verkauft, gekauft oder gemietet?</h3><p>Ihre ehrliche Bewertung hilft anderen bei einer wichtigen Entscheidung – und uns, noch besser zu werden.</p><a class="btn btn--light" href="#kontakt">Bewertung abgeben</a></article>`;
-      note.textContent = 'Verifizierte Bewertungen erscheinen hier automatisch, sobald sie vorliegen.';
-      return;
-    }
-    const shown = demoReviews.slice(0, 3);
-    if (count < 10) {
-      summary.className = 'rating-summary';
-      summary.innerHTML = `${stars(5)}<div class="rating-summary__meta"><b>${count} verifizierte Bewertungen</b><br>auf Google und ProvenExpert</div>`;
-    } else {
-      summary.className = 'rating-summary';
-      summary.innerHTML = `<div class="rating-summary__score">4,9</div><div>${stars(5)}<div class="rating-summary__meta"><b>${count} Bewertungen</b> · Google &amp; ProvenExpert</div></div>`;
-    }
-    wrap.innerHTML = shown.map(r => `
-      <article class="review"><span class="review__demo">Beispiel</span>${stars(5)}<blockquote>„${r.text}“</blockquote>
-        <footer><div><strong>${r.name}</strong><span>${r.place}</span></div><span class="review__src">${r.src}</span></footer></article>`).join('');
-    note.innerHTML = count >= 10 ? `<a class="link-arrow" href="#bewertungen">Alle ${count} Bewertungen lesen <svg><use href="#i-arrow"/></svg></a>` : 'Bewertungen werden ausschließlich aus verifizierten Quellen übernommen.';
-  };
-  renderReviews(0);
-  $$('[data-scenario]').forEach(b => b.addEventListener('click', () => {
-    $$('[data-scenario]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    renderReviews(Number(b.dataset.scenario));
-  }));
 
   /* ---------- Kennzahlen hochzählen ---------- */
   const countUp = el => {
+    if (reduceMotion) return;
     const target = Number(el.dataset.count);
     const plain = el.hasAttribute('data-plain');
-    if (reduceMotion) return;
     const from = plain ? Math.max(0, target - 120) : 0;
     const t0 = performance.now(), dur = 1600;
     const step = t => {

@@ -1,7 +1,7 @@
 # Coldwell Banker Deutschland – Startseiten-Entwurf
 
-Klickbarer, voll responsiver Entwurf der neuen Startseite für **coldwellbanker.de** (Zweittermin mit dem Kunden, Relaunch Q1).
-Statisches HTML/CSS/JS, ohne Build-Schritt und ohne externe Abhängigkeiten.
+Klickbarer, voll responsiver Entwurf der neuen Startseite für **coldwellbanker.de**.
+Statisches HTML/CSS/JS ohne Build-Schritt. Live-Vorschau (Vercel, automatisch bei jedem Push): https://coldwellbanker-rosy.vercel.app
 
 ## Ansehen
 
@@ -9,67 +9,49 @@ Statisches HTML/CSS/JS, ohne Build-Schritt und ohne externe Abhängigkeiten.
 python3 -m http.server 8000
 ```
 
-Dann `http://localhost:8000` öffnen. Mit `http://localhost:8000/?hinweise` startet die Seite direkt im Präsentationsmodus.
+Dann `http://localhost:8000` öffnen. Mit `?hinweise` startet die Seite im Präsentationsmodus. Unten rechts lassen sich die nummerierten Entwurfshinweise ein- und ausblenden.
 
-## Präsentationsmodus
+## Grundsätze dieser Version
 
-Unten rechts sitzt eine Leiste (nur für den Termin, im Relaunch entfernen):
+- **Inhalt:** ausschließlich Texte, Bilder, Objekte und Kontaktdaten der bestehenden coldwellbanker.de (Startseite sowie die Standortseiten Hamburg und Münchner Süden). Keine erfundenen Inhalte.
+- **Struktur:** Reihenfolge der Sections nach der Startseite von von-poll.com/de. Sections ohne passenden Coldwell-Banker-Inhalt (Kundenstimmen, Suchprofil-Push, Newsletter) entfallen.
+- **Überschriften:** genau eine H1 (Hero) und je Section genau eine H2; Unterpunkte als H3. Keine Mini-Überschriften über den Headlines.
+- **Look:** Cormorant Garamond und Manrope (lokal eingebunden, kein Google-Fonts-CDN), Markenblau `#012169`, warme Neutraltöne. Alle Tokens in `assets/css/styles.css` (`:root`).
 
-- **Entwurfshinweise**: blendet nummerierte Hinweise ein, die jede Gestaltungsentscheidung und jeden Platzhalter erklären.
-- **Bewertungen: Start (0) / Aufbau (3) / Etabliert (24)**: zeigt, wie das Vertrauensmodul mit wachsender Zahl an Bewertungen mitwächst.
+## Section-Reihenfolge
 
-## Leitidee: „Global gedacht. In Deutschland zu Hause.“
+| # | von-Poll-Slot | H2 | Quelle |
+|---|---|---|---|
+| 1 | Hero mit Suche | H1 „Eine globale Marke. Eine neue Perspektive für Deutschland.“ | Startseite |
+| 2 | Aktuelle Immobilienangebote | Ausgewählte Immobilien in besonderen Lagen. | Startseite, Standortseite Hamburg |
+| 3 | Länder-Teaser | Das weltweite Zuhause exklusiver Immobilien. | Startseite |
+| 4 | Unsere Stärken | Eine der renommiertesten Marken der internationalen Immobilienbranche | Startseite |
+| 5 | Premiumleistungen | Persönlich. International. Exklusiv. | Standortseiten |
+| 6 | Magazin-Teaser | Live Well with Coldwell | Startseite (Video per Zwei-Klick) |
+| 7 | Blog | Marktwissen & Inspiration | Startseite |
+| 8 | Wer wir sind | Global gedacht. In Deutschland zu Hause. | Startseite |
+| 9 | Standorte | Unsere Standorte | Standortseiten |
+| 10 | Geschäftsleitung | Erfahrung, die den Markt prägt. | Startseite |
+| 11 | Kennzahlen | Immobilienvermarktung weltweit | Startseite (Hero-Zahlen) |
+| 12 | Newsletter-Slot | Ein neuer Akteur im Premium-Immobilienmarkt | Startseite |
+| 13 | SEO-Textblock | Exklusive Wohnlagen | Standortseiten |
+| 14 | Kontakt | Beratung vereinbaren | Startseite, Standortseiten |
 
-Die Reihenfolge der Seite bildet die Formel ab: zuerst Nähe und Vertrauen, dann das internationale Netzwerk als Mehrwert.
+## Offene Punkte
 
-1. Hero mit Suchmodul (Kaufen / Mieten / Verkaufen); „Verkaufen“ führt direkt zur kostenfreien Wertermittlung
-2. Vertrauensleiste mit konkreten Serviceversprechen, die auch ohne Bewertungen tragen
-3. Selbstverständnis: regionale Kompetenz → verlässlicher Prozess → internationale Reichweite
-4. Kennzahlen (nur belegte Zahlen aus dem Briefing)
-5. Sechs Leistungskarten
-6. Objektkarten mit Lage, Fläche, Zimmern, Preis und Badge, filterbar
-7. Verkaufsprozess in fünf nachvollziehbaren Schritten
-8. Standorte: Deutschlandkarte und alle fünf Standorte (heute zeigt die Seite nur zwei)
-9. Globales Netzwerk / Global Luxury, bewusst erst an dieser Stelle
-10. Gründer Florian Freytag-Gross
-11. Mitwachsendes Bewertungsmodul
-12. Partner werden (Franchise-Expansion bis 2030)
-13. Kontakt mit drei Wegen: Telefon, E-Mail, persönlicher Termin (Formular klickbar, ohne Versand)
-
-## Vorläufiges Design-System
-
-Bis das CI-Brandbook vorliegt, sind alle Farben, Schriften und Abstände als Tokens in `assets/css/styles.css` (`:root`) definiert und lassen sich zentral austauschen.
-
-- Farben: Markenblau `#012169` (angelehnt an das internationale Coldwell-Banker-Blau) mit warmen Neutraltönen statt reinem Weiß
-- Schriften: Cormorant Garamond (Headlines) und Manrope (Fließtext), **lokal eingebunden** (kein Google-Fonts-CDN, DSGVO)
-- Wortmarke: Platzhalter, wird durch das Original-Logo ersetzt
-
-## Offene Punkte / Platzhalter (vom Kunden)
-
-- [ ] CI-Brandbook: Logo, Farben, Schriften
-- [ ] Name, Adresse und Ansprechpartner der Standorte 3–5
-- [ ] Telefonnummer (`+49 40 000 000 0` ist Platzhalter) und E-Mail-Adresse bestätigen
-- [ ] Porträt Florian Freytag-Gross (Fotoshooting) sowie Freigabe des Zitats (Textvorschlag)
-- [ ] Eigene Fotografie aus Hamburg und dem Münchener Süden statt Stockfotos
-- [ ] Echte Objekte über die Maklersoftware anbinden (die sechs Objekte sind fiktiv)
-- [ ] Bewertungsquelle festlegen (Google und/oder ProvenExpert); die Beispielbewertungen sind als „Beispiel“ markiert und nur zur Demonstration da
-- [ ] Serviceversprechen (24-h-Antwort, fester Ansprechpartner usw.) intern bestätigen
-- [ ] Franchise- und Markenhinweis im Footer rechtlich prüfen; Impressum und Datenschutz ergänzen
-- [ ] Zeitangaben im Verkaufsprozess mit dem Team abstimmen
+- [ ] Kennzahlen prüfen: Die Seite nennt „3.000+ Immobilien“, an anderer Stelle „3.000 Büros/Standorte“. „98 % Zufriedenheit“ sollte belegbar sein.
+- [ ] Vorschaubild des Kampagnenvideos ist sehr amerikanisch geprägt; ggf. eigenes Motiv.
+- [ ] Blog-Bilder sind Platzhalter (auch auf der bestehenden Seite).
+- [ ] CI-Brandbook: Farben und Schriften final abstimmen; das Logo ist das Original von coldwellbanker.de (für den hellen Header blau eingefärbt).
+- [ ] Objekte im Relaunch an Propstack anbinden.
 
 ## Dateien
 
 ```
 index.html               Startseite
 assets/css/styles.css    Design-Tokens und Layout
-assets/js/main.js        Suche, Filter, Formular, Bewertungsmodul, Präsentationsmodus
+assets/js/main.js        Suche, Slider, Kontakt-Reiter, Video, Formulare, Präsentationsmodus
 assets/fonts/            Webfonts (SIL Open Font License)
-assets/img/              Bildmaterial (Platzhalter)
-tools/build-map.mjs      Erzeugt den SVG-Pfad der Deutschlandkarte
+assets/img/              Bilder und Logos von coldwellbanker.de, Blog-Platzhalter (Unsplash)
+tools/build-map.mjs      Erzeugt den SVG-Pfad der Deutschlandkarte (Natural Earth, gemeinfrei)
 ```
-
-## Bildnachweise
-
-- Fotos: [Unsplash](https://unsplash.com) (Unsplash-Lizenz), nur Platzhalter für den Entwurf
-- Deutschlandkarte: Natural Earth 1:50m (gemeinfrei) über das npm-Paket `world-atlas`
-- Schriften: Cormorant Garamond und Manrope (SIL Open Font License), über `@fontsource`
